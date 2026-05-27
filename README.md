@@ -90,6 +90,19 @@ Language 1 (e.g., en_US) + 12px Padding + Language 2 (PUA Encoded)
 - Python 3.9+ (Only for compiling from source)
 - Pillow (Only for compiling from source)
 
+## ⚠️ Known Issues & Limitations
+
+While this addon uses a highly creative native workaround, the compiler architecture has some known limits:
+
+1. **PUA Atlas Limit (256 Characters):** The `charmap.json` and font generation logic are constrained to a single 16x16 grid (256 slots). It is perfectly fine for European languages, but will crash if attempting to compile CJK (Chinese, Japanese, Korean) or Arabic languages.
+2. **Right-to-Left (RTL) Incompatibility:** The mathematical padding hack and PUA conversion bypass Minecraft's native bidirectional text rendering. RTL languages will render completely broken.
+3. **Dynamic Parameter Skipping:** Strings containing game variables (like `%s` or `%1`) are intentionally skipped by the parser. This prevents the PUA injection from breaking the game's internal `printf`-style string formatter.
+4. **Regex-Based UI Parsing Risks:** To preserve Bedrock's non-standard C-style JSON comments (`//`), `ui_modifier.py` uses RegEx instead of a strict JSON AST parser. This introduces edge cases:
+   - Deeply nested arrays (like UI `bindings`) can trick the lookahead parser, potentially risking duplicate `"wrap": true` injections.
+   - The injection logic can occasionally leave trailing commas at the end of objects. Bedrock tolerates this, but it violates strict JSON standards.
+5. **Rigid Target Widths:** The script assigns `max_size` limits based purely on the file name (e.g., all labels inside `inventory_screen.json` get 200px width). Tiny UI widgets within these screens might physically overflow their intended graphical bounds.
+6. **Cross-Platform Compilation Bug:** Compiling the source code on a Windows machine currently fails to move the generated font atlas to the `textures/font/` directory due to a hardcoded POSIX `/` path separator in `font_generator.py`. (Users must compile via macOS/Linux/WSL).
+
 ## 📝 License
 
 MIT License - See [LICENSE](LICENSE) for details.

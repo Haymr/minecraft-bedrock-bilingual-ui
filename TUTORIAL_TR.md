@@ -1,9 +1,17 @@
-# Minecraft Bedrock İkincil Dil Modu - iOS Kurulum Rehberi
+# Çift Dilli (Bilingual) Arayüz Eklentisi Nasıl Kullanılır?
 
-Bu mod, Minecraft Mağazası (Marketplace) olmadan tamamen cihazınıza yüklenebilir. Kurulum sırasında sık karşılaşılan hataları önlemek için aşağıdaki adımları dikkatle takip ediniz:
+Hoş geldiniz! Bu eklenti, Minecraft Bedrock Edition'da aynı anda iki farklı dili ekranda görmenizi sağlar.
 
-1. **Dosyanın İndirilmesi:** Paylaşılan veya derlediğiniz `.mcpack` uzantılı dosyayı Safari üzerinden cihazınıza indirin.
-2. **Önemli Hazırlık:** Minecraft oyununun arka planda çalışmadığından emin olun. Gerekirse uygulama değiştiriciden (app switcher) Minecraft'ı yukarı kaydırarak tamamen kapatın. Oyun açıkken yapılan içe aktarmalar Bedrock motorunda askıda kalabilmektedir.
-3. **İçe Aktarma (Import):** iOS "Dosyalar" (Files) uygulamasını açın. İndirdiğiniz `.mcpack` dosyasına bir kez dokunun.
-4. Eğer doğrudan Minecraft açılmazsa, dosyaya basılı tutun, "Paylaş" seçeneğine tıklayın ve listeden Minecraft'ı seçin.
-5. **Etkinleştirme:** Oyun açıldığında ekranın üstünde "İçe Aktarma Başarılı" uyarısını göreceksiniz. Ayarlar > Global Kaynaklar (Global Resources) sekmesine gidin ve paketi aktifleştirin. Arayüz yeniden yüklendiğinde çift dil desteği devreye girecektir.
+## Kurulum Adımları
+1. `Bilingual_UI.mcpack` dosyasını indirin.
+2. iOS (iPhone/iPad) veya Android cihaz kullanıyorsanız, dosyaya dokunun ve paylaşım menüsünden "Minecraft" uygulamasını seçin.
+3. Windows 10/11 kullanıyorsanız, oyuna aktarmak için dosyaya çift tıklamanız yeterlidir.
+4. Oyun "İçe Aktarma Başarılı" mesajı verdiğinde **Ayarlar > Global Kaynaklar** menüsüne gidin.
+5. "Paketlerim" altında "Bilingual Bedrock UI" eklentisini bulun ve **Etkinleştir** tuşuna basın.
+
+## Nasıl Çalışır?
+- Ana dil (örneğin İngilizce) her zamanki gibi üstte görünecektir.
+- İkinci dil (örneğin Fransızca) hemen onun altında, gri renkli ve eğik (italik) bir fontla görünecektir.
+- Bu eklenti oyunun kendi özelliklerini kullanır. Yani başarımlarınızı (achievements) kapatmaz veya Deneysel Oynanış gerektirmez!
+
+İyi oyunlar!

@@ -1,31 +1,95 @@
-# Bilingual Bedrock UI Addon (v5.0 Final)
+# Bilingual Bedrock UI Addon
 
-Bu proje, Minecraft Bedrock Edition (iOS 26 / Bedrock 1.26.0+) için tasarlanmış bağımsız bir arayüz (UI) eklentisidir. Herhangi bir script API veya Marketplace bağımlılığı olmadan, Bedrock'un native JSON UI ve Font render motorunu kullanarak **Aynı anda çift dilli arayüz** sunmayı hedefler.
+A native, zero-dependency dual-language UI translation addon for Minecraft Bedrock Edition.
 
-## Sistem Mimarisi
+![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![Bedrock](https://img.shields.io/badge/Minecraft-Bedrock_1.26+-orange.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Bedrock `.lang` dosyaları satır sonu (newline - `\n`) karakterlerini native olarak desteklemez. Bu proje, çift dil desteğini sağlamak için şu akıllı mimariyi kullanır:
-1. İkinci dilin tüm karakterleri "Private Use Area" (PUA) Unicode bloklarına (`\uE100` - `\uE1FF`) taşınır.
-2. Özel olarak üretilmiş `glyph_E1.png` font dosyası `textures/font/` altına yüklenir. Bedrock bu dosyayı native olarak donanım hızlandırmalı render eder.
-3. İngilizce ve Fransızca dilleri arasına UI objesinin ekran genişliğine (`max_size`) tam oturacak şekilde matematiksel olarak boşluk (padding) eklenir. Bedrock'un *word-wrap* mekanizması yazıyı bu padding'in sonundan otomatik olarak kırıp ikinci dili alt satıra atar.
+📚 **Tutorials**: [English](TUTORIAL_EN.md) | [Türkçe](TUTORIAL_TR.md) | [Français](TUTORIAL_FR.md)
 
-## Compiler Pipeline (Derleme Aşamaları)
+## 📋 Features
 
-Tüm süreç 3 adet Python scripti ile otomatikleştirilmiştir:
+- **True Bilingual UI**: Displays two languages simultaneously (e.g., English on top, French italicized below)
+- **Native Rendering**: Zero scripts, zero Marketplace dependencies. Powered purely by Bedrock's native JSON UI and Font engine.
+- **Custom PUA Font**: Second language characters are mapped to the Private Use Area (`\uE100-\uE1FF`) to guarantee flawless rendering.
+- **Zero-Overlap Engine**: Uses algorithmic padding (12px tolerance) to force Bedrock's word-wrap engine to safely push the secondary language to the next line.
+- **Component Filtering**: Intelligently skips massive text blocks (like EULA or Credits) to prevent UI breakage while preserving translations for buttons and smaller UI elements.
 
-1. **`parser.py` (PUA & Padding Engine)**
-   * `en_US.lang` ve `fr_FR.lang` dosyalarını alır.
-   * `fr_FR`'deki karakterleri analiz edip `charmap.json` tablosu oluşturur (Max 127 glif).
-   * İki dizeyi aralarına padding ve format kodları (`§r§7§o`) koyarak birleştirir ve `resource_pack/texts/en_US.lang` dosyasına yazar.
+## 🚀 Quick Start
 
-2. **`font_generator.py` (Bedrock Native Atlas Generator)**
-   * `charmap.json` dosyasını okur.
-   * macOS sistem fontlarını kullanarak her karakteri 16x16 ızgara içerisine (beyaz + alpha opacity ile) render eder.
-   * 256x256 boyutunda `resource_pack/textures/font/glyph_E1.png` atlasını oluşturur.
+### Installation
 
-3. **`ui_modifier.py` (JSON Inheritance Injector)**
-   * Bedrock JSON UI dosyalarındaki `type: label` veya `@common.label` kalıtımını (inheritance) kullanarak miras alan etiketleri bulur.
-   * Sadece hedeflenen bileşenlere `"wrap": true` ve `"max_size": [GENIŞLIK, "default"]` enjekte eder. `start_screen` gibi ana dosyaları es geçmez, ancak arayüzü bozabilecek `credits_text` gibi bileşenleri kara listeye alarak atlar.
+1. Download the latest `Bilingual_UI.mcpack` from the [Releases](#) tab (or build it yourself).
+2. Open the file on your device (iOS/Android/Windows 10). Minecraft will automatically import it.
+3. Navigate to **Settings > Global Resources** and activate the pack.
 
-## Kurulum ve Kullanım
-Oluşturulan `Bilingual_UI.mcpack` dosyasını doğrudan iPad/iPhone veya Windows 10 cihazınızdan açmanız yeterlidir. "Global Kaynaklar" menüsünden etkinleştirdiğinizde oyun otomatik olarak İngilizce ve Alt-Satırda Fransızca (Gri İtalik) şekline bürünecektir.
+### Building from Source
+
+```bash
+git clone https://github.com/Haymr/minecraft-bedrock-bilingual-ui.git
+cd minecraft-bedrock-bilingual-ui
+python -m venv compiler/venv
+source compiler/venv/bin/activate
+pip install Pillow
+
+# Run the compiler pipeline
+python compiler/src/parser.py
+python compiler/src/font_generator.py
+python compiler/src/ui_modifier.py
+
+# Package the mcpack
+cd resource_pack && zip -r ../Bilingual_UI.mcpack . -x "*.DS_Store"
+```
+
+## 📁 Project Structure
+
+```
+├── compiler/
+│   └── src/
+│       ├── parser.py              # PUA padding & mapping engine
+│       ├── font_generator.py      # Bedrock glyph_E1.png generator
+│       └── ui_modifier.py         # JSON inheritance injector
+│
+├── resource_pack/                 # The actual Minecraft Addon
+│   ├── manifest.json              # Pack definitions
+│   ├── font/                      # default.json (if applicable)
+│   ├── texts/                     # Compiled .lang files
+│   ├── textures/font/             # Custom PUA glyph atlases
+│   └── ui/                        # Modified JSON UI screens
+│
+├── TUTORIAL_EN.md                 # English documentation
+├── TUTORIAL_TR.md                 # Turkish documentation
+└── TUTORIAL_FR.md                 # French documentation
+```
+
+## 🔬 System Architecture
+
+```
+Language 1 (e.g., en_US) + 12px Padding + Language 2 (PUA Encoded)
+    │
+    ▼
+┌─────────────────────────────────┐
+│     Bedrock Word-Wrap Engine    │
+│  • Reads primary language       │
+│  • Hits bounding box limit      │
+│  • Pushes secondary lang down   │
+└─────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────┐
+│     Bedrock Font Engine         │
+│  • Reads textures/font/glyph_E1 │
+│  • Renders French characters    │
+└─────────────────────────────────┘
+```
+
+## 🛠️ Requirements
+
+- Minecraft Bedrock Edition (1.26.0+)
+- Python 3.9+ (Only for compiling from source)
+- Pillow (Only for compiling from source)
+
+## 📝 License
+
+MIT License - See [LICENSE](LICENSE) for details.

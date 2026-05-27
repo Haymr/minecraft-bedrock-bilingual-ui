@@ -1,0 +1,30 @@
+{
+    "format_version": 2,
+    "header": {
+        "description": "Bilingual UI v2.0 \u2014 en_US + fr_FR \u2014 Bedrock-native font + full UI coverage",
+        "name": "Bilingual Bedrock UI",
+        "uuid": "89edc998-aa87-47e5-8b4a-e2ae6dd87944",
+        "version": [
+            2,
+            0,
+            0
+        ],
+        "min_engine_version": [
+            1,
+            26,
+            0
+        ]
+    },
+    "modules": [
+        {
+            "description": "Bilingual UI Client Assets",
+            "type": "resources",
+            "uuid": "b433e5ce-bef6-44fe-9b17-b8d2f1965b87",
+            "version": [
+                2,
+                0,
+                0
+            ]
+        }
+    ]
+}

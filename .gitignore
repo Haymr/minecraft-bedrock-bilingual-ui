@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Python Virtual Environment
+compiler/venv/
+__pycache__/
+*.pyc
+
+# Compiled Outputs / Build Artifacts
+*.mcpack
+*.zip
+
+# IDEs
+.vscode/
+.idea/
+
+# Scratch & Temporary
+scratch/
+temp/

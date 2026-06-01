@@ -90,12 +90,19 @@ def build_charmap(secondary_lang_dict: dict) -> dict:
 
 
 def translate_to_pua(text: str, charmap: dict[str, str]) -> str:
-    """Verilen metindeki her karakteri charmap'e göre PUA'ya çevirir."""
+    """Verilen metindeki her karakteri charmap'e göre PUA'ya çevirir.
+    §X format kodları (§r, §7, §o, §e, §f vb.) korunur — hem § hem de
+    sonraki karakter PUA'ya çevrilmez."""
     result = []
+    skip_next = False
     for ch in text:
-        if ch == '§':
-            # §X format kodları aynen geçsin (bunlar PUA'ya çevrilmemeli)
+        if skip_next:
+            # § sonrası format kodu karakteri — olduğu gibi geç
             result.append(ch)
+            skip_next = False
+        elif ch == '§':
+            result.append(ch)
+            skip_next = True  # sonraki karakteri de koru
         else:
             result.append(charmap.get(ch, ch))
     return ''.join(result)

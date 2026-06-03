@@ -3124,7 +3124,7 @@
             {
               "status_panel@common_store.inventory_button": {
                 "wrap": true,
-                "max_size": [ 200, "default" ],
+                "max_size": [ 200, "default" ]
               }
             }
           ]

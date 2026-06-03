@@ -910,7 +910,7 @@
       {
         "third_party_profile_label@realms_allowlist.third_party_profile_label": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]

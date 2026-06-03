@@ -90,19 +90,19 @@
       {
         "send_button@dev_console.send_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {
         "sent_message_up_button@dev_console.sent_message_up_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {
         "sent_message_down_button@dev_console.sent_message_down_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]

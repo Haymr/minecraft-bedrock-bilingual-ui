@@ -20,17 +20,17 @@
 
   "dispenser_label@item_dropper_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 200, "default" ]
   },
 
   "crafter_label@item_dropper_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 200, "default" ]
   },
 
   "dropper_label@item_dropper_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 200, "default" ]
   },
 
   "hopper_label@item_dropper_label": {

@@ -31,7 +31,7 @@
       {
         "access_button@debug_screen.access_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {

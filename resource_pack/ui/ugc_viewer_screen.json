@@ -55,7 +55,7 @@
             {
               "world_label@ugc_viewer.world_label": {
                 "wrap": true,
-                "max_size": [ 200, "default" ],
+                "max_size": [ 200, "default" ]
               }
             },
             {

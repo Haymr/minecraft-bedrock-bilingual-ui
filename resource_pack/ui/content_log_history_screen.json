@@ -145,13 +145,13 @@
       {
         "clipboard_button@content_log_history.clipboard_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {
         "clear_button@content_log_history.clear_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]

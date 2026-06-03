@@ -8017,7 +8017,7 @@
       {
         "info_text@play.join_by_code_popup_help_text": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]

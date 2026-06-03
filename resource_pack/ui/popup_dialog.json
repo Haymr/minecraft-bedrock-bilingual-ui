@@ -401,7 +401,7 @@
       {
         "right@popup_dialog.modal_rightcancel_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]
@@ -417,13 +417,13 @@
       {
         "left@popup_dialog.modal_left_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {
         "right@popup_dialog.modal_rightcancel_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]

@@ -98,7 +98,7 @@ def process_file(filepath: str, target_width: int) -> bool:
         if m_type:
             indent = m_type.group(1)
             trailing_comma = m_type.group(2)
-            
+
             lookahead = ''.join(lines[i:min(i+15, len(lines))])
             has_wrap = '"wrap"' in lookahead[:lookahead.find('}', 1)] if '}' in lookahead[1:] else '"wrap"' in lookahead
             has_max = '"max_size"' in lookahead[:lookahead.find('}', 1)] if '}' in lookahead[1:] else '"max_size"' in lookahead
@@ -107,11 +107,13 @@ def process_file(filepath: str, target_width: int) -> bool:
                 line = line.rstrip('\n').rstrip() + ',\n'
             new_lines.append(line)
 
+            # wrap her zaman virgüllü (arkasından max_size geliyor)
             if not has_wrap:
                 new_lines.append(f'{indent}"wrap": true,\n')
                 changed = True
+            # max_size SON property olduğundan virgül OLMADAN eklenir
             if not has_max:
-                new_lines.append(f'{indent}"max_size": [ {target_width}, "default" ],\n')
+                new_lines.append(f'{indent}"max_size": [ {target_width}, "default" ]\n')
                 changed = True
 
             i += 1
@@ -134,13 +136,15 @@ def process_file(filepath: str, target_width: int) -> bool:
             has_max = '"max_size"' in lookahead[:lookahead.find('}', 1)] if '}' in lookahead[1:] else '"max_size"' in lookahead
 
             inject_indent = indent + "  "
+            # wrap her zaman virgüllü (arkasından max_size geliyor)
             if not has_wrap:
                 new_lines.append(f'{inject_indent}"wrap": true,\n')
                 changed = True
+            # max_size SON property olduğundan virgül OLMADAN eklenir
             if not has_max:
-                new_lines.append(f'{inject_indent}"max_size": [ {target_width}, "default" ],\n')
+                new_lines.append(f'{inject_indent}"max_size": [ {target_width}, "default" ]\n')
                 changed = True
-                
+
             continue
 
         new_lines.append(line)

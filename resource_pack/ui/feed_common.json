@@ -588,20 +588,20 @@
       {
         "prev_button@feed_common.prev_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {
         "page_text@feed_common.page_text": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
 
         }
       },
       {
         "next_button@feed_common.next_button": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       }
     ]
@@ -620,7 +620,7 @@
       {
         "page_text@feed_common.page_text": {
           "wrap": true,
-          "max_size": [ 200, "default" ],
+          "max_size": [ 200, "default" ]
         }
       },
       {

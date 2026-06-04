@@ -1076,7 +1076,7 @@
           "wrap": true,
           "max_size": [ 220, "default" ],
           "$toggle_state_binding_name": "#game_mode_radio_survival",
-          "$radio_label_text": "realmsSettingsScreen.survivalRadioButton",
+          "$radio_label_text": "realmsSettingsScreen.survivalRadioButton"
         }
       },
       {
@@ -1084,7 +1084,7 @@
           "wrap": true,
           "max_size": [ 220, "default" ],
           "$toggle_state_binding_name": "#game_mode_radio_creative",
-          "$radio_label_text": "realmsSettingsScreen.creativeRadioButton",
+          "$radio_label_text": "realmsSettingsScreen.creativeRadioButton"
         }
       }
     ]

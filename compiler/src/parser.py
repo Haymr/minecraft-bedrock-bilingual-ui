@@ -48,7 +48,23 @@ SKIP_KEY_PREFIXES = (
     'progressScreen.',
     'tips.',
     'loading.',
+    # Dar/sabit-yükseklikli UI widget'larında kullanılan key'ler:
+    'furnaceScreen.',    # Fırın slot etiketleri (çok dar alan)
+    'container.',        # Container/slot başlıkları (dar/sabit)
+    'controls.',         # Kontroller ekranı dar toggle etiketleri
+    'stat.',             # İstatistik/genel kısa label'lar
 )
+
+# Suffix bazlı skip (key sonuna göre) - Settings nav tab label'ları
+SKIP_KEY_SUFFIXES = (
+    '.tab.title',        # Settings sol nav tab label'ları (30px sabit toggle)
+    '.tab.name',         # Benzer nav tab label'ları
+)
+
+# options.* prefix'li key'ler için özel kural:
+# Kısa değerler (<= 30 karakter) settings nav toggle'larında kullanılıyor (30px fixed height)
+# Uzun değerler (> 30 karakter) açıklama/tooltip metinleri - bilingual yapılabilir
+OPTIONS_BILINGUAL_MIN_LEN = 30  # Bu uzunluktan kısa options.* key'leri skip edilir
 
 # ---------------------------------------------------------------------------
 # Charmap Oluşturma
@@ -160,6 +176,16 @@ def should_skip(key: str, primary_value: str) -> bool:
 
     # Devre dışı bırakılan prefix'ler
     if key.startswith(SKIP_KEY_PREFIXES):
+        return True
+
+    # Suffix bazlı skip (settings nav tab label'ları vs.)
+    if key.endswith(SKIP_KEY_SUFFIXES):
+        return True
+
+    # options.* prefix'li kısa key'ler: settings nav toggle label'larıdır
+    # 30px fixed-height toggle button'larda ikinci satır görüntülenemez
+    clean_primary = re.sub(r'§.', '', primary_value).strip()
+    if key.startswith('options.') and len(clean_primary) <= OPTIONS_BILINGUAL_MIN_LEN:
         return True
 
     return False

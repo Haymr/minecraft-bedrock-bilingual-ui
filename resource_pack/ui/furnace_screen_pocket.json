@@ -4,7 +4,7 @@
   "generic_label": {
     "type": "label",
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 80, "default" ],
     "color": "$pocket_title_text_color",
     "anchor_from": "center",
     "anchor_to": "center",
@@ -41,22 +41,22 @@
 
   "input_label@furnace_pocket.generic_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 80, "default" ],
     "text": "furnaceScreen.input"
   },
   "fuel_label@furnace_pocket.generic_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 80, "default" ],
     "text": "furnaceScreen.fuel"
   },
   "result_label@furnace_pocket.generic_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 80, "default" ],
     "text": "furnaceScreen.result"
   },
   "result_name_label@furnace_pocket.generic_label": {
     "wrap": true,
-    "max_size": [ 200, "default" ],
+    "max_size": [ 80, "default" ],
     "text": ""
   },
 
@@ -80,7 +80,7 @@
             {
               "input_label@furnace_pocket.input_label": {
                 "wrap": true,
-                "max_size": [ 200, "default" ],
+                "max_size": [ 80, "default" ],
                 "offset": [ 0.5, 0 ],
                 "anchor_from": "top_middle",
                 "anchor_to": "top_middle"
@@ -123,7 +123,7 @@
             {
               "fuel_label@furnace_pocket.fuel_label": {
                 "wrap": true,
-                "max_size": [ 200, "default" ],
+                "max_size": [ 80, "default" ],
                 "offset":  [ 0.5, 0 ],
                 "anchor_from": "bottom_middle",
                 "anchor_to": "bottom_middle"
@@ -152,7 +152,7 @@
             {
               "result_label@furnace_pocket.result_label": {
                 "wrap": true,
-                "max_size": [ 200, "default" ],
+                "max_size": [ 80, "default" ],
                 "offset": [ 0.5, 0 ],
                 "anchor_from": "top_middle",
                 "anchor_to": "top_middle"
@@ -161,7 +161,7 @@
             {
               "result_name_label@furnace_pocket.result_name_label": {
                 "wrap": true,
-                "max_size": [ 200, "default" ],
+                "max_size": [ 80, "default" ],
                 "anchor_from": "bottom_middle",
                 "anchor_to": "top_middle",
                 "text": "#text",

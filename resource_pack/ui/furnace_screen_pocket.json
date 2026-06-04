@@ -160,13 +160,13 @@
             },
             {
               "result_name_label@furnace_pocket.result_name_label": {
-                "wrap": true,
+                "wrap": false,
                 "max_size": [ 80, "default" ],
                 "anchor_from": "bottom_middle",
                 "anchor_to": "top_middle",
                 "text": "#text",
                 "text_alignment": "center",
-                "size": [ "200%", "default" ],
+                "size": [ "100%", "default" ],
                 "offset": [ 0, "default-10px" ],
                 "bindings": [
                   {
@@ -248,6 +248,8 @@
             {
               "title_label@furnace_pocket.generic_label": {
                 "layer": 1,
+                "wrap": false,
+                "max_size": [ "fill", "default" ],
                 "text": "$container_title",
                 "localize": "$localize_title",
                 "enable_profanity_filter": true

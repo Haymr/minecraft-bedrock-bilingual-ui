@@ -41,19 +41,28 @@ DYNAMIC_PARAM_RE = re.compile(
 )
 
 SKIP_KEY_PREFIXES = (
+    # Komut/debug çıktıları — oyuncuya gösterilmiyor
     'commands.',
-    'accessibility.',
     'scoreboard.',
     'sidebar.',
+    # Erişilebilirlik / TTS — ekran okuyucuya gönderiliyor, bilingual gerekmez
+    'accessibility.',
+    # Yükleme ekranı ipuçları — yeterince alan var ama aşırı metin
     'progressScreen.',
     'tips.',
-    'loading.',
-    # Dar/sabit-yükseklikli UI widget'larında kullanılan key'ler:
-    'furnaceScreen.',    # Fırın slot etiketleri (çok dar alan)
-    'container.',        # Container/slot başlıkları (dar/sabit)
-    'controls.',         # Kontroller ekranı dar toggle etiketleri
-    'stat.',             # İstatistik/genel kısa label'lar
+    # ── Layout-problematik olanlar ──────────────────────────────────────────
+    # Fırın slot etiketleri: "Input/Fuel/Result" 32px genişlikte → bilingual sığmaz
+    'furnaceScreen.',
+    # Kontroller ekranı: "Jump", "Attack" vb. kısa etiket, keybind paneli ≤60px
+    'controls.',
+    # İstatistik etiketleri: çok kısa tek-satır sayaç label'ları
+    'stat.',
+    # Ses altyazıları: 0.5s görünüp yok oluyor, çok küçük
+    'subtitles.',
 )
+# NOT: container.* (Chest/Coffre), tile.* (Blast Furnace/Haut fourneau),
+#       item.* (Iron Ingot/Lingot de fer), action.interact.* (Stand/Se lever)
+#       ve entity.* key'leri BİLİNGUAL KALIR — kullanıcıya görünen asıl içerik.
 
 # Suffix bazlı skip (key sonuna göre) - Settings nav tab label'ları
 SKIP_KEY_SUFFIXES = (

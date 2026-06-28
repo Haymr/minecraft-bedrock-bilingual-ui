@@ -504,7 +504,7 @@
     "shadow": false,
     "$button_text_size|default": [ "default", "default" ],
     "size": "$button_text_size",
-    "$button_text_max_size|default": [ "100%", 10 ], // Per design buttons are single line text only
+    "$button_text_max_size|default": [ "100%", 20 ], // Per design buttons are single line text only
     "max_size": "$button_text_max_size",
     "$text_alignment|default": "center",
     "text_alignment": "$text_alignment",

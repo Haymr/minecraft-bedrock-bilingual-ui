@@ -40,7 +40,7 @@
                 "layer": 1,
                 // Size is defaulted to the size of the text fitting on one line
                 // Must specify a max size for layout to solve
-                "$button_text_max_size": [ 120, 10 ],
+                "$button_text_max_size": [ 120, 20 ],
                 "$button_text": "multiplayer.stopSleeping",
                 "button_mappings": [
                   {
@@ -67,7 +67,7 @@
                 "wrap": true,
                 "max_size": [ 200, "default" ],
                 "layer": 1,
-                "$button_text_max_size": [ 120, 10 ],
+                "$button_text_max_size": [ 120, 20 ],
                 "$button_text": "multiplayer.inBedOpenChat",
                 "button_mappings": [
                   {

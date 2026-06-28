@@ -1453,7 +1453,7 @@
         "crafting_label@crafting.crafting_label": {
           "wrap": true,
           "max_size": [ 200, "default" ],
-          "size": [ 84, 10 ],
+          "size": [ 140, 10 ],
           "offset": [ -15, 0 ],
           "text_alignment": "$grid_label_alignment"
         }
@@ -1477,7 +1477,7 @@
         "crafting_label@crafting.crafting_label": {
           "wrap": true,
           "max_size": [ 200, "default" ],
-          "size": [ 66, 10 ],
+          "size": [ 140, 10 ],
           "offset": [ -15, 0 ],
           "text_alignment": "$grid_label_alignment"
         }

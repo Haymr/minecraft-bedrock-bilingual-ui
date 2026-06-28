@@ -51,18 +51,42 @@ SKIP_KEY_PREFIXES = (
     'progressScreen.',
     'tips.',
     # ── Layout-problematik olanlar ──────────────────────────────────────────
-    # Fırın slot etiketleri: "Input/Fuel/Result" 32px genişlikte → bilingual sığmaz
-    'furnaceScreen.',
     # Kontroller ekranı: "Jump", "Attack" vb. kısa etiket, keybind paneli ≤60px
     'controls.',
     # İstatistik etiketleri: çok kısa tek-satır sayaç label'ları
     'stat.',
     # Ses altyazıları: 0.5s görünüp yok oluyor, çok küçük
     'subtitles.',
+    # ── MOTOR TARAFINDAN RAW ÇİZİLEN AYAR EKRANLARI ─────────────────────────
+    # Bu ekranlar metni § format kodlarını İŞLEMEDEN ve PUA fontu OLMADAN ham
+    # render eder → "§r§7§o" düz metin + boş kutu (tofu) çıkar. Pakette
+    # düzeltilemez (mimari sınır). Bu yüzden tek-dilli (temiz İngilizce) bırakılır.
+    'createWorldScreen.',   # Dünya oluşturma ayarları (Default/Hardcore/Starting map…)
+    'options.',             # Ayarlar menüsü etiket+açıklamaları (Video/Audio/…)
+    'menu.game.tab.',       # Oyun ayarları sekmeleri (World Setup, açıklamalar…)
+    'generator.',           # Dünya tipi seçenekleri (Default/Flat/…)
+    'soundCategory.',        # Ses ayarları kategorileri (Hostile mobs…)
+    'storageManager.',       # Depolama yönetimi ekranı (üst üste biniyor)
 )
 # NOT: container.* (Chest/Coffre), tile.* (Blast Furnace/Haut fourneau),
 #       item.* (Iron Ingot/Lingot de fer), action.interact.* (Stand/Se lever)
 #       ve entity.* key'leri BİLİNGUAL KALIR — kullanıcıya görünen asıl içerik.
+
+# Tam-eşleşme skip: tek tek key'ler (motor-render ayar nav/başlıkları veya dar
+# butonlar). furnaceScreen.header BİLEREK listede DEĞİL → inline çevrilir.
+SKIP_EXACT_KEYS = {
+    # Fırın slot placeholder'ları: "Input/Fuel/Result" ~32px slotta — sığmaz.
+    'furnaceScreen.fuel', 'furnaceScreen.input', 'furnaceScreen.result',
+    # Ayarlar sol nav kategorileri (motor-render → tofu): temiz İngilizce kalsın.
+    'menu.globalpacks', 'menu.resourcepacks', 'menu.behaviors',
+    'menu.skinpacks', 'menu.storage', 'menu.storageManagement',
+    'menu.worldtemplates', 'menu.skins', 'menu.options', 'menu.moreOptions',
+    # Ana menüdeki Marketplace/Profile GÖRSEL butonları: 2 satır metin
+    # arka plan görselinin üzerine taşıyor → tek dilli bırak.
+    'menu.store', 'menu.profile',
+    # "Dressing Room" butonu dar; "Dressing Room / Vestiaire" taşıyor → İngilizce.
+    'profileScreen.header',
+}
 
 # Suffix bazlı skip (key sonuna göre) - Settings nav tab label'ları
 SKIP_KEY_SUFFIXES = (
@@ -91,8 +115,14 @@ def build_charmap(secondary_lang_dict: dict) -> dict:
     for value in secondary_lang_dict.values():
         for ch in value:
             cp = ord(ch)
-            # Kontrol karakterleri, § format kodları ve \n hariç tümünü map'e al
-            if cp >= 32 and ch != '§':
+            # Kontrol karakterleri, § format kodları, \n VE boşluklar hariç tümünü map'e al.
+            # DÜZELTME (#2 — boş space-glyph): U+0020 ve U+00A0 (NBSP) ASLA PUA'ya
+            # map EDİLMEZ. Aksi halde font_generator bu hücrelere boş glyph çizer,
+            # ikinci dilin kelime araları sıfır-genişlikli olur → kelimeler birbirine
+            # girer / "fer" gibi sözcükler "f er" diye yanlış noktadan bölünür.
+            # Boşluklar olduğu gibi (ASCII) bırakılınca default fontun 4px kırılabilir
+            # boşluğu kullanılır ve word-wrap doğru çalışır.
+            if cp >= 32 and ch not in ('§', ' ', ' '):
                 all_chars.add(ch)
 
     # Sıralı listele (deterministik çıktı için)
@@ -179,12 +209,22 @@ def parse_lang_file(filepath: str) -> dict[str, str]:
 
 def should_skip(key: str, primary_value: str) -> bool:
     """True dönerse bu satır tek dilli bırakılır."""
+    # Tam-eşleşme skip (motor-render ayar nav/başlık veya dar buton key'leri)
+    if key in SKIP_EXACT_KEYS:
+        return True
+
     # Dinamik runtime parametresi içeriyor mu?
     if DYNAMIC_PARAM_RE.search(primary_value):
         return True
 
     # Devre dışı bırakılan prefix'ler
     if key.startswith(SKIP_KEY_PREFIXES):
+        return True
+
+    # menu.* iki veya daha çok segmentliyse (menu.X.tab.Y, menu.X.access…)
+    # bu motor-render ayar başlık/açıklamalarıdır → tofu. Skip.
+    # Tek-segmentli menu.X (menu.play/settings/quit…) pack-buton → bilingual kalır.
+    if key.startswith('menu.') and key.count('.') >= 2:
         return True
 
     # Suffix bazlı skip (settings nav tab label'ları vs.)
@@ -222,6 +262,65 @@ def get_target_width(key: str) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Inline (yan yana) başlık key'leri  —  DÜZELTME #3
+# ---------------------------------------------------------------------------
+# Sandık / fırın / crafting GUI başlık çubukları çok dardır (yükseklik ~10px) ve
+# hemen altında OPAK eşya ızgarası başlar. EN/FR'yi alt alta zorladığımızda 2.
+# satır (FR) ızgaranın arkasında kalıp görünmez olur (overdraw). Bu yüzden bu
+# key'lerde dolgu-ile-sarma YERİNE tek satırda "EN / FR" yan yana gösteriyoruz.
+# '/' başlık renginde (default font), FR ise §r§7§o ile gri-italik (PUA).
+INLINE_TITLE_EXTRA_KEYS = {
+    # Bu bloklar container.* key'i kullanmaz; başlık tile.*.name'den gelir.
+    'tile.furnace.name',
+    'tile.blast_furnace.name',
+    'tile.smoker.name',
+    # Normal fırın başlığı motorda $container_title = furnaceScreen.header'dan
+    # gelir (container.furnace değil). Dar başlık çubuğu → inline.
+    'furnaceScreen.header',
+}
+# Tek-segmentli container.* başlığı olsa da inline YAPILMAYACAK key'ler:
+INLINE_TITLE_EXCLUDE_KEYS = {
+    # Envanter başlığı dikey alana sahip ve alt alta DÜZGÜN çalışıyor (kanıtlı
+    # ekran görüntüsü) — bozmuyoruz, alt alta bırakıyoruz.
+    'container.inventory',
+}
+# Güvenlik üst sınırı: bu uzunluğu aşan başlıklar tek satıra sığmaz.
+INLINE_TITLE_MAX_LEN = 24
+
+
+def is_inline_title_key(key: str, clean_primary: str) -> bool:
+    """Dar tek-satır başlık çubuğunda render edilen, inline gösterilmesi gereken key mi?
+
+    Yalnızca GERÇEK başlıkları hedefler: 'container.X' / 'container.X_block' gibi
+    tek-segmentli key'ler. 'container.smithing_table.template_slot_tooltip' gibi
+    çok-segmentli tooltip/label key'leri alt alta (stacked) kalır."""
+    if key in INLINE_TITLE_EXCLUDE_KEYS:
+        return False
+    if key in INLINE_TITLE_EXTRA_KEYS:
+        return True
+    # HUD etkileşim ipuçları (Trade/Stand/Board...): motorun tek-satır, SARMAYAN
+    # prompt çubuğunda render edilir. Alt alta zorlamak için eklenen dolgu, EN ve
+    # FR'yi çubuğun iki ucuna itip kocaman boşluk bırakıyordu. Inline ("/" ile)
+    # boşluksuz, kompakt "Trade / Commercer" verir.
+    if key.startswith('action.interact.'):
+        return True
+    if (key.startswith('container.')
+            and key.count('.') == 1
+            and len(clean_primary) <= INLINE_TITLE_MAX_LEN):
+        return True
+    return False
+
+
+def use_newline_stack(key: str) -> bool:
+    """item.* / tile.* adlari: dolgu yerine GERCEK satir sonu ile FR'yi
+    dogrudan alta, hizali koy. Bu adlar merkez-hizali HUD/tooltip etiketlerinde
+    gosterilir; dolgu bosluklari EN'i kaydirip hizasiz birakir + arka plani tasirir."""
+    # GERI ALINDI: \n yaklasimi riskliydi (Bedrock .lang literal '\n' gosterebilir)
+    # ve kullanici istemedi. Esya/blok adlari tekrar dolgu (padding) ile alt satira iner.
+    return False
+
+
+# ---------------------------------------------------------------------------
 # Dil Birleştirme
 # ---------------------------------------------------------------------------
 
@@ -245,6 +344,26 @@ def merge_languages(
             merged[key] = primary_val
             continue
 
+        # İkinci dili PUA'ya çevir
+        pua_text = translate_to_pua(secondary_val, charmap)
+        clean_primary = re.sub(r'§.', '', primary_val).strip()
+
+        # DÜZELTME #3: Dar başlık çubukları (container.* başlıkları + blast
+        # furnace/smoker) için EN/FR'yi alt alta zorlamak yerine TEK satırda
+        # yan yana göster; böylece 2. satır opak eşya ızgarasının arkasında
+        # kaybolmaz. '/' başlık renginde, FR ise §r§7§o ile gri-italik.
+        if is_inline_title_key(key, clean_primary):
+            merged[key] = f'{primary_val} / §r§7§o{pua_text}'
+            continue
+
+        # DÜZELTME: item/tile adları merkez-hizalı HUD/tooltip etiketlerinde
+        # gösterilir. Dolgu boşlukları EN'i sola kaydırıp FR ile hizasız bırakıyor
+        # + arka planı taşırıyor. Gerçek satır sonu ile FR'yi DOĞRUDAN alta koy.
+        # (\\n = ters-bölü+n; .lang'da gerçek newline byte YOK — Bedrock kırar.)
+        if use_newline_stack(key):
+            merged[key] = f'{primary_val}\\n§r§7§o{pua_text}'
+            continue
+
         # Padding hesabı (tam senkronize max_size için)
         target_width = get_target_width(key)
         primary_width = get_string_width(primary_val)
@@ -259,8 +378,6 @@ def merge_languages(
         # Bedrock'ta space = 4px genişliğinde
         padding_spaces = ' ' * max(1, padding_px // 4)
 
-        # İkinci dili PUA'ya çevir ve formatla
-        pua_text = translate_to_pua(secondary_val, charmap)
         # V3.1 DÜZELTME: 4 boşlukluk (indent) kaldırıldı!
         # Wrap noktasının tam padding bitiminde olması için format kodları doğrudan bitişiktir.
         secondary_formatted = f'\u00a7r\u00a77\u00a7o{pua_text}'

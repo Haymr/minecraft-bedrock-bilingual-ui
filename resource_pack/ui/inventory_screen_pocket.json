@@ -493,7 +493,8 @@
         "crafting_label@crafting.crafting_label": {
           "wrap": true,
           "max_size": [ 200, "default" ],
-          "size": [ "100%", 10 ],
+          "size": [ "200%", 10 ],
+          "offset": [ "-50%", 0 ],
           "text_alignment": "$grid_label_alignment"
         }
       },

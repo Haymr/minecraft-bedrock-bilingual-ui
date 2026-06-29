@@ -663,6 +663,10 @@
     "$focus_override_right": "skin_preview_button",
     "focus_enabled": true,
 
+    "property_bag": {
+      "#visible": false
+    },
+
     "bindings": [
       {
         "binding_type": "$store_factory_collection_details",
@@ -670,16 +674,16 @@
         "binding_collection_prefix": "$store_factory_collection_prefix"
       },
       {
-          "binding_name": "#open_color_picker_button_visible",
-          "binding_name_override": "#visible"
+        "binding_name": "#open_color_picker_button_visible",
+        "binding_name_override": "#visible"
       },
       {
-          "binding_name": "#open_color_picker_button_enabled",
-          "binding_name_override": "#enabled"
+        "binding_name": "#open_color_picker_button_enabled",
+        "binding_name_override": "#enabled"
       },
       {
-          "binding_name": "#open_color_picker_button_enabled",
-          "binding_name_override": "#focus_enabled"
+        "binding_name": "#open_color_picker_button_enabled",
+        "binding_name_override": "#focus_enabled"
       }
     ]
   },
@@ -2571,6 +2575,7 @@
   },
 
   "info_text_box_description_stack@common.vertical_stack_panel": {
+    "ignored": "$ignore_info_text_box_description",
     "size": [ "100%", "fill" ],
     "controls": [
       { "summary_author_button_panel@persona_sdl.info_text_summary_button_panel": {} },
@@ -2791,7 +2796,7 @@
 
   "achievement_button@persona_sdl.view_achievement": {
     "ignored": "(not $supports_xbl_achievements)",
-    "size": [ "60%", "100%" ],
+    "size": [ "fill", "100%" ],
     "$focus_override_down": "FOCUS_OVERRIDE_STOP",
     "bindings": [
       {
@@ -2824,7 +2829,7 @@
   },
 
   "collect_achievement_button@persona_sdl.collect_achievement": {
-    "size": [ "40%", "100%" ],
+    "size": [ "fill", "100%" ],
     "$focus_override_down": "FOCUS_OVERRIDE_STOP",
     "bindings": [
       {
@@ -3756,6 +3761,7 @@
               "key_helpers@common.empty_panel": {
                 "ignored": "$ignore_emote_keybind_helpers",
                 "offset": [ "25%", "-30%" ],
+                "layer": 25,
 
                 "controls": [
                   {

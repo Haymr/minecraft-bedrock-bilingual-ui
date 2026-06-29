@@ -1031,7 +1031,8 @@
                 "max_size": [ 200, "default" ],
                 "anchor_from": "top_left",
                 "anchor_to": "top_left",
-                "offset": [ 2, 0 ]
+                "offset": [ 2, 0 ],
+                "size": [ "100% - 5px", "default" ]
               }
             }
           ]
@@ -1151,6 +1152,7 @@
                 "text_alignment": "center",
                 "anchor_from": "center",
                 "anchor_to": "center",
+                "enable_profanity_filter": false,
                 "anims": [
                   "@hud.anim_subtitle_txt_wait"
                 ]
@@ -3491,16 +3493,6 @@
         }
       },
       { "vignette_rend@vignette_renderer": {} },
-      {
-        "curor_rend@cursor_renderer": {
-          "bindings": [
-            {
-              "binding_name": "#show_cursor",
-              "binding_name_override": "#visible"
-            }
-          ]
-        }
-      },
       {
         "game_tip@game_tip.game_tip_factory": {}
       },

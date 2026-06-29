@@ -14,8 +14,8 @@ DÜZELTME #1 — Tek-satır yükseklik kırpması:
 DÜZELTME #4 — Ayarlar fontu (tofu + literal §):
   Özel glyph_E1.png atlası YALNIZCA "default" fontu besler. font_type "smooth" /
   "MinecraftTen" kullanan Ayarlar etiketleri PUA Fransızcasını tofu (□) gösterir ve
-  o render yolu § kodlarını düz metin basar. settings_sections içindeki çevrilen
-  etiketleri "default" fonta zorlayarak Fransızcanın görünmesini deniyoruz.
+  o render yolu § kodlarını düz metin basar. Eski denemede settings_sections
+  etiketlerini "default" fonta zorlamak denenmişti.
   NOT: Bu, smooth/MinecraftTen tipografisini default piksel fontuna çevirir
   (kasıtlı ödünleşim). Dropdown DEĞER metinleri motor tarafından çizildiği için
   bu yöntemle düzelmeyebilir → oyun-içi test gerekir.
@@ -126,5 +126,5 @@ if __name__ == '__main__':
     # DÜZELTME #4 (font_type → default) GERİ ALINDI: Ayarlar/dünya-oluşturma
     # ekranları metni motor tarafından § işlenmeden + PUA fontu olmadan ham
     # render ediyor; font_type değiştirmek tofu'yu çözmedi. Artık bu key'ler
-    # parser.py'de skip ediliyor (temiz İngilizce). apply_font_fixes ÇAĞRILMIYOR.
-    print(f'ui_fixups tamamlandı: #1 {h}, #5 {c} düzeltme. (#4 geri alındı — bkz. parser skip)')
+    # parser.py'de plain-inline EN/FR üretiliyor. apply_font_fixes ÇAĞRILMIYOR.
+    print(f'ui_fixups tamamlandı: #1 {h}, #5 {c} düzeltme. (#4 geri alındı — bkz. parser plain-inline)')

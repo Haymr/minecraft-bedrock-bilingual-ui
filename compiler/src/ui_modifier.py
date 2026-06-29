@@ -76,6 +76,25 @@ def get_width_for_file(filename: str) -> int:
 TYPE_LABEL_RE = re.compile(r'^(\s*)"type"\s*:\s*"label"(\s*,?)(\s*)$')
 INHERIT_LABEL_RE = re.compile(r'^(\s*)"([^"]*@[^"]*(?:label|text|button))"\s*:\s*\{\s*$')
 
+def next_significant_line(lines: list[str], start: int) -> str:
+    """Boş/comment satırları atlayıp bir sonraki anlamlı satırı döndürür."""
+    for line in lines[start:]:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith('//') or stripped.startswith('/*') or stripped.startswith('*'):
+            continue
+        return stripped
+    return ''
+
+
+def property_line(prop: str, indent: str, target_width: int, comma: bool = True) -> str:
+    suffix = ',' if comma else ''
+    if prop == 'wrap':
+        return f'{indent}"wrap": true{suffix}\n'
+    return f'{indent}"max_size": [ {target_width}, "default" ]{suffix}\n'
+
+
 def process_file(filepath: str, target_width: int) -> bool:
     with open(filepath, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -107,13 +126,22 @@ def process_file(filepath: str, target_width: int) -> bool:
                 line = line.rstrip('\n').rstrip() + ',\n'
             new_lines.append(line)
 
-            # wrap her zaman virgüllü (arkasından max_size geliyor)
+            next_line = next_significant_line(lines, i + 1)
+            object_has_more_members = bool(next_line and not next_line.startswith('}'))
+
             if not has_wrap:
-                new_lines.append(f'{indent}"wrap": true,\n')
+                new_lines.append(property_line('wrap', indent, target_width, comma=True))
                 changed = True
-            # max_size SON property olduğundan virgül OLMADAN eklenir
+
             if not has_max:
-                new_lines.append(f'{indent}"max_size": [ {target_width}, "default" ]\n')
+                new_lines.append(
+                    property_line(
+                        'max_size',
+                        indent,
+                        target_width,
+                        comma=object_has_more_members,
+                    )
+                )
                 changed = True
 
             i += 1
@@ -136,13 +164,22 @@ def process_file(filepath: str, target_width: int) -> bool:
             has_max = '"max_size"' in lookahead[:lookahead.find('}', 1)] if '}' in lookahead[1:] else '"max_size"' in lookahead
 
             inject_indent = indent + "  "
-            # wrap her zaman virgüllü (arkasından max_size geliyor)
+            next_line = next_significant_line(lines, i)
+            object_has_more_members = bool(next_line and not next_line.startswith('}'))
+
             if not has_wrap:
-                new_lines.append(f'{inject_indent}"wrap": true,\n')
+                new_lines.append(property_line('wrap', inject_indent, target_width, comma=True))
                 changed = True
-            # max_size SON property olduğundan virgül OLMADAN eklenir
+
             if not has_max:
-                new_lines.append(f'{inject_indent}"max_size": [ {target_width}, "default" ]\n')
+                new_lines.append(
+                    property_line(
+                        'max_size',
+                        inject_indent,
+                        target_width,
+                        comma=object_has_more_members,
+                    )
+                )
                 changed = True
 
             continue

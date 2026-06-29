@@ -3854,12 +3854,6 @@
       },
       { "padding_1@how_to_play_common.padding": {} },
       {
-        "paragraph_2@how_to_play_common.paragraph": {
-          "$text": "howtoplay.minecoins.text.2"
-        }
-      },
-      { "padding_2@how_to_play_common.padding": {} },
-      {
         "get_minecoins_button@common_buttons.light_text_button": {
           "wrap": true,
           "max_size": [ 200, "default" ],
@@ -3876,7 +3870,7 @@
       },
       {
         "paragraph_3@how_to_play_common.paragraph": {
-          "$text": "howtoplay.minecoins.text.3"
+          "$text": "howtoplay.minecoins.text.2"
         }
       }
     ]

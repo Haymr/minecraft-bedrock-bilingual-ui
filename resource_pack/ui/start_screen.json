@@ -127,6 +127,7 @@
     "type": "stack_panel",
     "orientation": "horizontal",
     "size": [ "100%c", "100%" ],
+
     "controls": [
       {
         "padded_label@common.empty_panel": {
@@ -139,7 +140,8 @@
                 "max_size": [ 200, "default" ],
                 "size": [ "default", "default" ],
                 "color": "$text_color",
-                "text": "menu.ai_lesson_crafter"
+                "text": "menu.ai_lesson_crafter",
+                "text_tts": "menu.ai_lesson_crafter.tts"
               }
             }
           ]
@@ -164,13 +166,10 @@
     ]
   },
 
-  "preview_tag": {
+  "new_tag": {
     "type": "image",
     "size": [ "100%c + 4px", 15 ],
-    "offset": [ 19, -1 ],
     "layer": 11, // This is the lowest layer where the button border won't show through this icon while being pressed
-    "anchor_from": "top_right",
-    "anchor_to": "top_right",
     "texture": "textures/ui/previewIcon",
     "bindings": [
       {
@@ -186,7 +185,7 @@
           "max_size": [ 200, "default" ],
           "size": [ "default", 10 ],
           "offset": [ 0, 1 ],
-          "text": "menu.preview",
+          "text": "playscreen.new",
           "color": "$store_white_text_color",
           "anchor_from": "top_middle",
           "anchor_to": "top_middle",
@@ -805,7 +804,7 @@
 
   "gathering_badge": {
     "type": "image",
-    "size": [ "237%y", "100%" ],
+    "size": [ 100, "100%" ],
     "layer": 20,
     "allow_debug_missing_texture": false,
     "bindings": [
@@ -827,7 +826,7 @@
   "gathering_badge_gif": {
     "type": "custom",
     "renderer": "animated_gif_renderer",
-    "size": [ "237%y", "100%" ],
+    "size": [ 100, "100%" ],
     "layer": 20,
     "property_bag": {
       "#pause_gif": false
@@ -1709,7 +1708,6 @@
     "wrap": true,
     "max_size": [ 200, "default" ],
     "size": [ "100% - 2px", "100% - 2px" ],
-    "ignored": "(not $education_edition)",
     "$pressed_button_name": "button.ai_lesson_crafter",
     "$button_content": "start.edu_ai_lesson_crafter_button_content"
   },
@@ -2227,15 +2225,32 @@
             },
             {
               "ai_lesson_crafter_row@start.stacked_row": {
+                "ignored": "(not $education_edition)",
                 "bindings": [
                   {
                     "binding_name": "#edu_ai_lesson_crafter_on",
                     "binding_name_override": "#visible"
                   }
                 ],
+
                 "controls": [
-                  { "ai_lesson_crafter_button@start.ai_lesson_crafter_button": {} },
-                  { "lesson_crafter_preview_overlay@start.preview_tag": {} }
+                  {
+                    "ai_lesson_crafter_button@start.ai_lesson_crafter_button": {}
+                  },
+                  {
+                    "new_tag_content@common.empty_panel": {
+                      "size": [ "100%", "100%" ],
+                      "controls": [
+                        {
+                          "new_tag@start.new_tag": {
+                            "anchor_from": "top_right",
+                            "anchor_to": "top_right",
+                            "offset": [ 5, -5 ]
+                          }
+                        }
+                      ]
+                    }
+                  }
                 ]
               }
             },

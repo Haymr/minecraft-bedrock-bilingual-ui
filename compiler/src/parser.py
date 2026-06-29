@@ -40,13 +40,13 @@ DYNAMIC_PARAM_RE = re.compile(
     r'|\{[0-9]+\}'           # {0} {1} {2} ...
 )
 
+STYLE_PREFIX = '\u00a7r\u00a77\u00a7o'
+
 SKIP_KEY_PREFIXES = (
     # Komut/debug çıktıları — oyuncuya gösterilmiyor
     'commands.',
     'scoreboard.',
     'sidebar.',
-    # Erişilebilirlik / TTS — ekran okuyucuya gönderiliyor, bilingual gerekmez
-    'accessibility.',
     # Yükleme ekranı ipuçları — yeterince alan var ama aşırı metin
     'progressScreen.',
     'tips.',
@@ -57,16 +57,19 @@ SKIP_KEY_PREFIXES = (
     'stat.',
     # Ses altyazıları: 0.5s görünüp yok oluyor, çok küçük
     'subtitles.',
-    # ── MOTOR TARAFINDAN RAW ÇİZİLEN AYAR EKRANLARI ─────────────────────────
-    # Bu ekranlar metni § format kodlarını İŞLEMEDEN ve PUA fontu OLMADAN ham
-    # render eder → "§r§7§o" düz metin + boş kutu (tofu) çıkar. Pakette
-    # düzeltilemez (mimari sınır). Bu yüzden tek-dilli (temiz İngilizce) bırakılır.
-    'createWorldScreen.',   # Dünya oluşturma ayarları (Default/Hardcore/Starting map…)
-    'options.',             # Ayarlar menüsü etiket+açıklamaları (Video/Audio/…)
-    'menu.game.tab.',       # Oyun ayarları sekmeleri (World Setup, açıklamalar…)
-    'generator.',           # Dünya tipi seçenekleri (Default/Flat/…)
-    'soundCategory.',        # Ses ayarları kategorileri (Hostile mobs…)
-    'storageManager.',       # Depolama yönetimi ekranı (üst üste biniyor)
+)
+
+# Raw/OreUI tarafında § format kodları ve PUA fontu güvenilir değil. Bu ailelerde
+# çeviri tamamen atlanınca settings/create-world ekranları "eksik" görünüyor; PUA
+# basınca da tofu/literal § riski doğuyor. Orta yol: temiz, plain "EN / FR".
+PLAIN_INLINE_PREFIXES = (
+    'accessibility.',
+    'createWorldScreen.',
+    'options.',
+    'menu.game.tab.',
+    'generator.',
+    'soundCategory.',
+    'storageManager.',
 )
 # NOT: container.* (Chest/Coffre), tile.* (Blast Furnace/Haut fourneau),
 #       item.* (Iron Ingot/Lingot de fer), action.interact.* (Stand/Se lever)
@@ -98,6 +101,11 @@ SKIP_KEY_SUFFIXES = (
 # Kısa değerler (<= 30 karakter) settings nav toggle'larında kullanılıyor (30px fixed height)
 # Uzun değerler (> 30 karakter) açıklama/tooltip metinleri - bilingual yapılabilir
 OPTIONS_BILINGUAL_MIN_LEN = 30  # Bu uzunluktan kısa options.* key'leri skip edilir
+
+COMPACT_INLINE_EXACT_KEYS = {
+    'gui.exit',
+    'controller.buttonTip.exit',
+}
 
 # ---------------------------------------------------------------------------
 # Charmap Oluşturma
@@ -207,8 +215,84 @@ def parse_lang_file(filepath: str) -> dict[str, str]:
 # Skip Mantığı
 # ---------------------------------------------------------------------------
 
+def strip_format_codes(text: str) -> str:
+    """Bedrock §X format kodlarını temizler."""
+    return re.sub(r'§.', '', text).strip()
+
+
+def is_plain_inline_key(key: str) -> bool:
+    """PUA/§ kullanmadan plain bilingual yapılacak raw-render key ailesi mi?"""
+    return key.startswith(PLAIN_INLINE_PREFIXES)
+
+
+def is_compact_inline_key(key: str, clean_primary: str, clean_secondary: str) -> bool:
+    """Tek satırlık buton/topbar/prompt alanlarında padding yerine inline kullan."""
+    if key in COMPACT_INLINE_EXACT_KEYS:
+        return True
+    if is_inline_title_key(key, clean_primary):
+        return True
+    # Ana menü, pause menüsü ve chat üst barı gibi tek-segmentli menu.* butonları.
+    if key.startswith('menu.') and key.count('.') == 1:
+        return True
+    # Kısa başlık/aksiyon etiketlerinde inline daha stabil; çok uzun metinler
+    # stacked kalsın ki geniş açıklama panellerinde iki satır avantajını koruyalım.
+    combined_width = get_string_width(clean_primary) + get_string_width(clean_secondary) + 18
+    if key.endswith(('.button', '.buttonLabel')) and combined_width <= get_target_width(key):
+        return True
+    return False
+
+
+def classify_key(key: str, primary_value: str, secondary_dict: dict[str, str]) -> str:
+    """Bir key'in compiler davranışını raporlanabilir tek sınıfa indirger."""
+    if key not in secondary_dict:
+        return 'missing_secondary'
+
+    secondary_value = secondary_dict[key]
+
+    if key in SKIP_EXACT_KEYS:
+        return 'skip_exact'
+    if DYNAMIC_PARAM_RE.search(primary_value) or DYNAMIC_PARAM_RE.search(secondary_value):
+        return 'dynamic_param'
+    if key.startswith(SKIP_KEY_PREFIXES):
+        return 'skip_prefix'
+
+    clean_primary = strip_format_codes(primary_value)
+    clean_secondary = strip_format_codes(secondary_value)
+
+    # options.* kısa değerleri çoğunlukla dar toggle/nav label'ı; plain de olsa
+    # iki dil birlikte sığmıyor. Açıklamalar ve uzun satırlar aşağıda çevrilir.
+    if key.startswith('options.') and len(clean_primary) <= OPTIONS_BILINGUAL_MIN_LEN:
+        return 'short_options'
+
+    if is_plain_inline_key(key):
+        if not clean_secondary:
+            return 'empty_secondary'
+        if clean_primary == clean_secondary:
+            return 'same_value'
+        return 'plain_inline'
+
+    # menu.* iki veya daha çok segmentliyse (menu.X.tab.Y, menu.X.access…)
+    # bu motor-render ayar başlık/açıklamalarıdır → tofu riski. menu.game.tab.*
+    # yukarıdaki plain-inline grubunda özellikle yakalanır.
+    if key.startswith('menu.') and key.count('.') >= 2:
+        return 'menu_deep'
+
+    if key.endswith(SKIP_KEY_SUFFIXES):
+        return 'skip_suffix'
+
+    if not secondary_value.strip():
+        return 'empty_secondary'
+    if primary_value == secondary_value:
+        return 'same_value'
+    if is_compact_inline_key(key, clean_primary, clean_secondary):
+        return 'styled_inline'
+    return 'styled_stacked'
+
+
 def should_skip(key: str, primary_value: str) -> bool:
-    """True dönerse bu satır tek dilli bırakılır."""
+    """Geriye uyumluluk için basit skip kontrolü."""
+    # Tam karar artık classify_key() içinde; bu fonksiyon dış araçların eski
+    # import kullanımını kırmamak için minimum statik davranışı korur.
     # Tam-eşleşme skip (motor-render ayar nav/başlık veya dar buton key'leri)
     if key in SKIP_EXACT_KEYS:
         return True
@@ -221,6 +305,15 @@ def should_skip(key: str, primary_value: str) -> bool:
     if key.startswith(SKIP_KEY_PREFIXES):
         return True
 
+    # options.* prefix'li kısa key'ler: settings nav toggle label'larıdır
+    # 30px fixed-height toggle button'larda ikinci satır görüntülenemez
+    clean_primary = strip_format_codes(primary_value)
+    if key.startswith('options.') and len(clean_primary) <= OPTIONS_BILINGUAL_MIN_LEN:
+        return True
+
+    if is_plain_inline_key(key):
+        return False
+
     # menu.* iki veya daha çok segmentliyse (menu.X.tab.Y, menu.X.access…)
     # bu motor-render ayar başlık/açıklamalarıdır → tofu. Skip.
     # Tek-segmentli menu.X (menu.play/settings/quit…) pack-buton → bilingual kalır.
@@ -229,12 +322,6 @@ def should_skip(key: str, primary_value: str) -> bool:
 
     # Suffix bazlı skip (settings nav tab label'ları vs.)
     if key.endswith(SKIP_KEY_SUFFIXES):
-        return True
-
-    # options.* prefix'li kısa key'ler: settings nav toggle label'larıdır
-    # 30px fixed-height toggle button'larda ikinci satır görüntülenemez
-    clean_primary = re.sub(r'§.', '', primary_value).strip()
-    if key.startswith('options.') and len(clean_primary) <= OPTIONS_BILINGUAL_MIN_LEN:
         return True
 
     return False
@@ -328,32 +415,45 @@ def merge_languages(
     primary_dict: dict[str, str],
     secondary_dict: dict[str, str],
     charmap: dict[str, str],
-) -> dict[str, str]:
+) -> tuple[dict[str, str], dict[str, list[str]]]:
     merged: dict[str, str] = {}
+    coverage: dict[str, list[str]] = {}
 
     for key, primary_val in primary_dict.items():
-        # Skip kontrolü
-        if key not in secondary_dict or should_skip(key, primary_val):
+        mode = classify_key(key, primary_val, secondary_dict)
+        coverage.setdefault(mode, []).append(key)
+
+        if mode in {
+            'missing_secondary',
+            'skip_exact',
+            'dynamic_param',
+            'skip_prefix',
+            'short_options',
+            'menu_deep',
+            'skip_suffix',
+            'empty_secondary',
+            'same_value',
+        }:
             merged[key] = primary_val
             continue
 
         secondary_val = secondary_dict[key]
+        clean_primary = strip_format_codes(primary_val)
+        clean_secondary = strip_format_codes(secondary_val)
 
-        # İkinci dil değeri boş veya birincisiyle aynıysa tek dilli bırak
-        if not secondary_val.strip() or primary_val == secondary_val:
-            merged[key] = primary_val
+        if mode == 'plain_inline':
+            merged[key] = f'{clean_primary} / {clean_secondary}'
             continue
 
         # İkinci dili PUA'ya çevir
         pua_text = translate_to_pua(secondary_val, charmap)
-        clean_primary = re.sub(r'§.', '', primary_val).strip()
 
         # DÜZELTME #3: Dar başlık çubukları (container.* başlıkları + blast
         # furnace/smoker) için EN/FR'yi alt alta zorlamak yerine TEK satırda
         # yan yana göster; böylece 2. satır opak eşya ızgarasının arkasında
         # kaybolmaz. '/' başlık renginde, FR ise §r§7§o ile gri-italik.
-        if is_inline_title_key(key, clean_primary):
-            merged[key] = f'{primary_val} / §r§7§o{pua_text}'
+        if mode == 'styled_inline':
+            merged[key] = f'{primary_val} / {STYLE_PREFIX}{pua_text}'
             continue
 
         # DÜZELTME: item/tile adları merkez-hizalı HUD/tooltip etiketlerinde
@@ -380,7 +480,7 @@ def merge_languages(
 
         # V3.1 DÜZELTME: 4 boşlukluk (indent) kaldırıldı!
         # Wrap noktasının tam padding bitiminde olması için format kodları doğrudan bitişiktir.
-        secondary_formatted = f'\u00a7r\u00a77\u00a7o{pua_text}'
+        secondary_formatted = f'{STYLE_PREFIX}{pua_text}'
 
         combined = f'{primary_val}{padding_spaces}{secondary_formatted}'
 
@@ -390,7 +490,7 @@ def merge_languages(
 
         merged[key] = combined
 
-    return merged
+    return merged, coverage
 
 
 # ---------------------------------------------------------------------------
@@ -418,6 +518,24 @@ def export_charmap(charmap: dict[str, str], output_path: str) -> None:
     print(f'  charmap.json: {len(exportable)} entries → {output_path}')
 
 
+def export_coverage(coverage: dict[str, list[str]], output_path: str) -> None:
+    """Compiler kararlarını sayısal ve örnekli rapora döker."""
+    report = {
+        'summary': {
+            mode: len(keys)
+            for mode, keys in sorted(coverage.items())
+        },
+        'keys': {
+            mode: sorted(keys)
+            for mode, keys in sorted(coverage.items())
+        },
+    }
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+    print(f'  coverage: {sum(report["summary"].values())} keys → {output_path}')
+
+
 # ---------------------------------------------------------------------------
 # Ana Akış
 # ---------------------------------------------------------------------------
@@ -429,6 +547,7 @@ if __name__ == '__main__':
     secondary_path = os.path.join(BASE, '..', 'input_langs', 'fr_FR.lang')
     output_path    = os.path.join(BASE, '..', '..', 'resource_pack', 'texts', 'en_US.lang')
     charmap_path   = os.path.join(BASE, '..', 'charmap.json')
+    coverage_path  = os.path.join(BASE, '..', 'coverage_report.json')
 
     print('[1/4] Lang dosyaları parse ediliyor...')
     primary_lang   = parse_lang_file(primary_path)
@@ -441,11 +560,14 @@ if __name__ == '__main__':
     export_charmap(charmap, charmap_path)
 
     print('[3/4] Diller birleştiriliyor...')
-    merged = merge_languages(primary_lang, secondary_lang, charmap)
-    bilingual_count = sum(
-        1 for v in merged.values() if '\u00a7r\u00a77\u00a7o' in v
+    merged, coverage = merge_languages(primary_lang, secondary_lang, charmap)
+    styled_count = coverage.get('styled_inline', []) + coverage.get('styled_stacked', [])
+    plain_count = coverage.get('plain_inline', [])
+    print(
+        f'  Toplam: {len(merged)} satır, '
+        f'styled çift dilli: {len(styled_count)}, plain çift dilli: {len(plain_count)}'
     )
-    print(f'  Toplam: {len(merged)} satır, çift dilli: {bilingual_count}')
+    export_coverage(coverage, coverage_path)
 
     print('[4/4] en_US.lang yazılıyor...')
     write_lang_file(output_path, merged)

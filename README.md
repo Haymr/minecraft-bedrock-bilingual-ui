@@ -3,7 +3,7 @@
 A native, zero-dependency dual-language UI translation addon for Minecraft Bedrock Edition.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![Bedrock](https://img.shields.io/badge/Minecraft-Bedrock_1.26+-orange.svg)
+![Bedrock](https://img.shields.io/badge/Minecraft-Bedrock_1.26.30.5+-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 📚 **Tutorials**: [English](TUTORIAL_EN.md) | [Türkçe](TUTORIAL_TR.md) | [Français](TUTORIAL_FR.md)
@@ -14,7 +14,8 @@ A native, zero-dependency dual-language UI translation addon for Minecraft Bedro
 - **Native Rendering**: Zero scripts, zero Marketplace dependencies. Powered purely by Bedrock's native JSON UI and Font engine.
 - **Custom PUA Font**: Second language characters are mapped to the Private Use Area (`\uE100-\uE1FF`) to guarantee flawless rendering.
 - **Zero-Overlap Engine**: Uses algorithmic padding (12px tolerance) to force Bedrock's word-wrap engine to safely push the secondary language to the next line.
-- **Component Filtering**: Intelligently skips massive text blocks (like EULA or Credits) to prevent UI breakage while preserving translations for buttons and smaller UI elements.
+- **Render-Aware Coverage**: Uses styled bilingual text where Bedrock's native font path supports it, and plain inline bilingual text for raw-render settings screens that would otherwise show tofu or literal formatting codes.
+- **Coverage Report**: Emits `compiler/coverage_report.json` on every build so untranslated keys are intentional and auditable.
 
 ## 🚀 Quick Start
 
@@ -38,7 +39,8 @@ python compiler/src/parser.py
 python compiler/src/font_generator.py
 python compiler/src/ui_modifier.py
 
-# Package the mcpack
+# Optional post-pass and package
+python compiler/src/ui_fixups.py
 cd resource_pack && zip -r ../Bilingual_UI.mcpack . -x "*.DS_Store"
 ```
 
